@@ -2,7 +2,10 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-COPY . .
+COPY demo/pom.xml .
+RUN mvn dependency:go-offline
+
+COPY demo/src ./src
 
 RUN mvn clean package -DskipTests
 
