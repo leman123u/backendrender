@@ -16,7 +16,7 @@ import personalbudget.service.UserService;
 
 @RestController
 @RequestMapping("/api/budgets")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class BudgetController {
 
 	
