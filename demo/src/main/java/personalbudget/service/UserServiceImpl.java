@@ -2,7 +2,7 @@ package personalbudget.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +19,9 @@ public class UserServiceImpl implements UserService{
 	 private UserRepository userRepository;
 	  @Autowired 
 	  private  PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private JavaMailSender mailSender;
 	  
 	  
 	  @Value("${app.frontend.url}")
@@ -53,35 +56,35 @@ public class UserServiceImpl implements UserService{
 
 		    UUID token = UUID.randomUUID();
 
-		    user.setResetToken(token);
+		    user.setResetToken(token.toString());
 		    user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
 
 		    userRepository.save(user);
-
 		    String link = frontendUrl + "/reset-password?token=" + token;
+
+		    try {
+		        sendEmail(user.getEmail(), link);
+		    } catch (Exception e) {
+		        System.out.println("EMAIL ERROR: " + e.getMessage());
+		    }
 
 		    System.out.println("RESET LINK = " + link);
 
-		    return token;	}
+		    return token;}
 
 	@Override
 	public void resetPassword(UUID token, String newPassword) {
 
 	    UserEntity user = userRepository.findByResetToken(token)
-	            .orElseThrow(() -> new RuntimeException("Invalid token"));
+		            .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
 
-	    if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-	        throw new RuntimeException("Token expired");
-	    }
+		    // 🔐 yeni password encode olunur
+		    user.setPassword(passwordEncoder.encode(newPassword));
 
-	    user.setPassword(
-	            passwordEncoder.encode(newPassword)
-	    );
+		    // ♻️ token silinir (təkrar istifadə olunmasın)
+		    user.setResetToken(null);
 
-	    user.setResetToken(null);
-	    user.setResetTokenExpiry(null);
-
-	    userRepository.save(user);
+		    userRepository.save(user);
 		
 	}
 
@@ -89,5 +92,8 @@ public class UserServiceImpl implements UserService{
 	public boolean existsByEmail(String email) {
 		 return userRepository.existsByEmail(email);
 	}
+
+
+	
 
 }
