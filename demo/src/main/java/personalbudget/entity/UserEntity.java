@@ -41,7 +41,7 @@ public class UserEntity {
 	    @Column(name = "subscription_type")
 	    private String subscriptionType;
 
-	    @Column(name = "reset_token")
+	    @Column(name = "reset_token_new")
 	    private UUID resetToken;
 
 	    @Column(name = "reset_token_expiry")
