@@ -1,6 +1,5 @@
 package personalbudget.controller;
 
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +20,7 @@ import personalbudget.service.UserService;
 public class UserController {
 	
 
-@Autowired
+ @Autowired
 	    private UserService userService;
 	 
 	 @Autowired
@@ -51,11 +50,10 @@ public class UserController {
 	    }
 
 
-	    // ✅ FORGOT PASSWORD
 	    @PostMapping("/forgot-password")
 	    public String forgotPassword(@RequestParam String email) {
 
-	        UUID token = userService.createResetToken(email);
+	        String token = userService.createResetToken(email);
 
 	        return "Reset token created: " + token;
 	    }
@@ -73,7 +71,5 @@ public class UserController {
 	    }
 	
 
-	
-	
 
 }
