@@ -19,7 +19,7 @@ import personalbudget.service.UserService;
 
 @RestController
 @RequestMapping("/api/expenses")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class ExpenseController {
 	
 	
