@@ -19,4 +19,7 @@ public interface UserService {
     void resetPassword(UUID token, String newPassword);
 
     boolean existsByEmail(String email);
+
+	 void sendEmail(String to, String link);
+
 }
