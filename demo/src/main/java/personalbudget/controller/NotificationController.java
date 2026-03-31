@@ -20,7 +20,7 @@ import personalbudget.service.UserService;
 
 @RestController
 @RequestMapping("/api/notifications")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class NotificationController {
 	
 	
