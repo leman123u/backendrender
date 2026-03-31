@@ -93,7 +93,17 @@ public class UserServiceImpl implements UserService{
 		 return userRepository.existsByEmail(email);
 	}
 
+    @Override
+	public void sendEmail(String to, String link) {
 
+	    SimpleMailMessage message = new SimpleMailMessage();
+
+	    message.setTo(to);
+	    message.setSubject("Reset Password");
+	    message.setText("Click this link:\n" + link);
+
+	    mailSender.send(message);
+	}
 	
 
 }
