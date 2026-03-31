@@ -1,7 +1,7 @@
 package personalbudget.entity;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 import jakarta.persistence.Id;
 
@@ -22,10 +22,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- 
 public class UserEntity {
 	
-	 @Id
+	
+	   @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private Long id;
 	 
@@ -42,7 +42,7 @@ public class UserEntity {
 	    private String subscriptionType;
 
 	    @Column(name = "reset_token_new")
-	    private UUID resetToken;
+	    private String  resetToken;
 
 	    @Column(name = "reset_token_expiry")
 	    private LocalDateTime resetTokenExpiry;
