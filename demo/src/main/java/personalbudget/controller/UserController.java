@@ -3,6 +3,7 @@ package personalbudget.controller;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,14 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 import personalbudget.entity.UserEntity;
 import personalbudget.service.UserService;
 
+
 @RestController
 @RequestMapping("/api/app_users")
 @CrossOrigin
 public class UserController {
 	
-	 @Autowired
+
+@Autowired
 	    private UserService userService;
 	 
+	 @Autowired
+	 private PasswordEncoder passwordEncoder;
 	
 	    @PostMapping("/register")
 	    public UserEntity register(@RequestBody UserEntity user) {
@@ -33,14 +38,14 @@ public class UserController {
 	    }
 
 
-	    // ✅ LOGIN
 	    @PostMapping("/login")
-	    public UserEntity login(
-	            @RequestParam String email,
-	            @RequestParam String password
-	    ) {
+	    public UserEntity login(@RequestBody UserEntity request) {
 
-	        UserEntity user = userService.findByEmail(email);
+	        UserEntity user = userService.findByEmail(request.getEmail());
+
+	        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+	            throw new RuntimeException("Wrong password");
+	        }
 
 	        return user;
 	    }
@@ -56,10 +61,9 @@ public class UserController {
 	    }
 
 
-	    // ✅ RESET PASSWORD
 	    @PostMapping("/reset-password")
 	    public String resetPassword(
-	            @RequestParam UUID token,
+	            @RequestParam String token,
 	            @RequestParam String newPassword
 	    ) {
 
@@ -67,6 +71,7 @@ public class UserController {
 
 	        return "Password updated";
 	    }
+	
 
 	
 	
