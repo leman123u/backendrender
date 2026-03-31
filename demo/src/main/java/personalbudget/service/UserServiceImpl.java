@@ -2,7 +2,7 @@ package personalbudget.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public UserEntity save(UserEntity user) {
 		
-		 user.setPassword(
+		user.setPassword(
 		            passwordEncoder.encode(user.getPassword())
 		    );
 
@@ -46,47 +46,39 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Optional<UserEntity> findByResetToken(UUID token) {
+	public Optional<UserEntity> findByResetToken(String token) {
 		
 		return userRepository.findByResetToken(token);
 	}
 
-	@Override
-  public UUID createResetToken(String email) {
-		 UserEntity user = userRepository.findByEmail(email)
-		            .orElseThrow(() -> new RuntimeException("User not found"));
-
-		    UUID token = UUID.randomUUID();
-
-		    user.setResetToken(token.toString());
-		    user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
-
-		    userRepository.save(user);
-		    String link = frontendUrl + "/reset-password?token=" + token;
-
-		    try {
-		        sendEmail(user.getEmail(), link);
-		    } catch (Exception e) {
-		        System.out.println("EMAIL ERROR: " + e.getMessage());
-		    }
-
-		    System.out.println("RESET LINK = " + link);
-
-		    return token;}
 
 	@Override
-	public void resetPassword(UUID token, String newPassword) {
+  public String createResetToken(String email) {
+		  UserEntity user = userRepository.findByEmail(email)
+			        .orElseThrow(() -> new RuntimeException("User not found"));
 
-	    UserEntity user = userRepository.findByResetToken(token)
-		            .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+			    String token = UUID.randomUUID().toString();
 
-		    // 🔐 yeni password encode olunur
-		    user.setPassword(passwordEncoder.encode(newPassword));
+			    user.setResetToken(token);
+			    userRepository.save(user);
 
-		    // ♻️ token silinir (təkrar istifadə olunmasın)
-		    user.setResetToken(null);
+			    String link = frontendUrl + "/reset-password?token=" + token;
 
-		    userRepository.save(user);
+			    sendEmail(user.getEmail(), link);
+
+			    return token;
+	}
+
+	@Override
+	public void resetPassword(String token, String newPassword) {
+
+	  UserEntity user = userRepository.findByResetToken(token)
+	        .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+	    user.setPassword(passwordEncoder.encode(newPassword));
+	    user.setResetToken(null);
+
+	    userRepository.save(user);
 		
 	}
 
