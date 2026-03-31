@@ -17,7 +17,7 @@ import personalbudget.service.SavingsGoalService;
 
 @RestController
 @RequestMapping("/api/savings_goals")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class SavingsGoalController {
 
 	
