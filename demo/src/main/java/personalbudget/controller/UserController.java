@@ -68,16 +68,17 @@ public class UserController {
 	    }
 
 
-	    @PostMapping("/reset-password")
-	    public String resetPassword(
+	   @PostMapping("/reset-password")
+	    public ResponseEntity<?> resetPassword(
 	            @RequestParam String token,
-	            @RequestParam String newPassword
+	            @RequestParam String password
 	    ) {
 
-	        userService.resetPassword(token, newPassword);
+	        userService.resetPassword(token, password);
 
-	        return "Password updated";
+	        return ResponseEntity.ok("Password reset successful");
 	    }
+	
 	
 
 }
