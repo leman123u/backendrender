@@ -1,5 +1,6 @@
 package personalbudget.service;
 
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,13 +17,13 @@ import personalbudget.repository.UserRepository;
 @Service
 public class UserServiceImpl implements UserService{
 	
+	@Autowired
+	private JavaMailSender mailSender;
+	
 	  @Autowired 
 	 private UserRepository userRepository;
 	  @Autowired 
 	  private  PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private JavaMailSender mailSender;
 	  
 	  
 	  @Value("${app.frontend.url}")
@@ -30,30 +31,63 @@ public class UserServiceImpl implements UserService{
    
 	@Override
 	public UserEntity findByEmail(String email) {
-				return userRepository.findByEmail(email)
-				        .orElseThrow(() -> new RuntimeException("User not found"));
+		 return userRepository.findByEmail(email).orElse(null);
 	}
+	
 
 	@Override
 	public UserEntity save(UserEntity user) {
 		
-		user.setPassword(
+		 user.setPassword(
 		            passwordEncoder.encode(user.getPassword())
 		    );
 
 		    return userRepository.save(user);
 	}
 
-	@Override
-	public Optional<UserEntity> findByResetToken(String token) {
+	
+
+
 		
-		return userRepository.findByResetToken(token);
+	
+
+	@Override
+	public boolean existsByEmail(String email) {
+		 return userRepository.existsByEmail(email);
 	}
 
+	@Override
+	public Optional<UserEntity> findByResetToken(String token) {
+		   return userRepository.findByResetToken(token);
+	}
 
 	@Override
-  public String createResetToken(String email) {
-		  UserEntity user = userRepository.findByEmail(email)
+	public void resetPassword(String token, String newPassword) {
+
+	    UserEntity user = userRepository.findByResetToken(token)
+	        .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+	    user.setPassword(passwordEncoder.encode(newPassword));
+	    user.setResetToken(null);
+
+	    userRepository.save(user);
+		
+	}
+	@Override
+	public void sendEmail(String to, String link) {
+
+	    SimpleMailMessage message = new SimpleMailMessage();
+
+	    message.setTo(to);
+	    message.setSubject("Reset Password");
+	    message.setText("Click this link:\n" + link);
+
+	    mailSender.send(message);
+	}
+
+	@Override
+	public String createResetToken(String email) {
+		 UserEntity user = userRepository.findByEmail(email)
 			        .orElseThrow(() -> new RuntimeException("User not found"));
 
 			    String token = UUID.randomUUID().toString();
@@ -67,36 +101,7 @@ public class UserServiceImpl implements UserService{
 
 			    return token;
 	}
-
-	@Override
-	public void resetPassword(String token, String newPassword) {
-
-	  UserEntity user = userRepository.findByResetToken(token)
-	        .orElseThrow(() -> new RuntimeException("Invalid token"));
-
-	    user.setPassword(passwordEncoder.encode(newPassword));
-	    user.setResetToken(null);
-
-	    userRepository.save(user);
 		
-	}
-
-	@Override
-	public boolean existsByEmail(String email) {
-		 return userRepository.existsByEmail(email);
-	}
-
-    @Override
-	public void sendEmail(String to, String link) {
-
-	    SimpleMailMessage message = new SimpleMailMessage();
-
-	    message.setTo(to);
-	    message.setSubject("Reset Password");
-	    message.setText("Click this link:\n" + link);
-
-	    mailSender.send(message);
-	}
-	
-
 }
+
+
