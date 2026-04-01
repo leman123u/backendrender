@@ -1,6 +1,7 @@
 package personalbudget.service;
 
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,17 +64,25 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public void resetPassword(String token, String newPassword) {
+		UserEntity user = userRepository.findByResetToken(token)
+	            .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-	    UserEntity user = userRepository.findByResetToken(token)
-		        .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+	    // 🔥 expiry check
+	    if (user.getResetTokenExpiry() == null ||
+	        user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
 
-		    user.setPassword(passwordEncoder.encode(newPassword));
+	        throw new RuntimeException("Token expired");
+	    }
 
-		    user.setResetToken(null);
-		    user.setResetTokenExpiry(null);
+	    user.setPassword(passwordEncoder.encode(newPassword));
 
-		    userRepository.save(user);
-		
+	    // 🔥 token silinir
+	    user.setResetToken(null);
+	    user.setResetTokenExpiry(null);
+
+	    userRepository.save(user);
+	    
+	    
 	}
 	@Override
 	public void sendEmail(String to, String link) {
@@ -99,14 +108,16 @@ public class UserServiceImpl implements UserService{
 		    String token = UUID.randomUUID().toString();
 
 		    user.setResetToken(token);
+
+		    // 🔥 15 dəqiqəlik expiry
+		    user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+
 		    userRepository.save(user);
 
 		    String link = frontendUrl + "/reset-password?token=" + token;
 
-		    // 🔥 IMPORTANT: print reset link
 		    System.out.println("RESET LINK: " + link);
 
-		    // send email (will not crash now)
 		    sendEmail(user.getEmail(), link);
 
 		    return token;
