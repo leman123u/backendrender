@@ -1,7 +1,10 @@
 package personalbudget.controller;
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,14 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import personalbudget.entity.UserEntity;
 import personalbudget.service.UserService;
 
-
 @RestController
 @RequestMapping("/api/app_users")
 @CrossOrigin(origins = "*")
 public class UserController {
 	
-
- @Autowired
+	 @Autowired
 	    private UserService userService;
 	 
 	 @Autowired
@@ -38,15 +39,23 @@ public class UserController {
 
 
 	    @PostMapping("/login")
-	    public UserEntity login(@RequestBody UserEntity request) {
+	    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
 	        UserEntity user = userService.findByEmail(request.getEmail());
 
-	        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-	            throw new RuntimeException("Wrong password");
+	        if (user == null) {
+	            return ResponseEntity
+	                    .status(HttpStatus.UNAUTHORIZED)
+	                    .body("Invalid email or password");
 	        }
 
-	        return user;
+	        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+	            return ResponseEntity
+	                    .status(HttpStatus.UNAUTHORIZED)
+	                    .body("Invalid email or password");
+	        }
+
+	        return ResponseEntity.ok(user);
 	    }
 
 
@@ -70,6 +79,5 @@ public class UserController {
 	        return "Password updated";
 	    }
 	
-
 
 }
