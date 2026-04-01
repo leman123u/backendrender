@@ -76,31 +76,40 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void sendEmail(String to, String link) {
 
-	    SimpleMailMessage message = new SimpleMailMessage();
+	    try {
+		        SimpleMailMessage message = new SimpleMailMessage();
 
-	    message.setTo(to);
-	    message.setSubject("Reset Password");
-	    message.setText("Click this link:\n" + link);
+		        message.setTo(to);
+		        message.setSubject("Reset Password");
+		        message.setText("Click this link:\n" + link);
 
-	    mailSender.send(message);
+		        mailSender.send(message);
+
+		    } catch (Exception e) {
+		        System.out.println("Email failed to send: " + e.getMessage());
+		    }
 	}
-
 	@Override
 	public String createResetToken(String email) {
 		 UserEntity user = userRepository.findByEmail(email)
-			        .orElseThrow(() -> new RuntimeException("User not found"));
+		            .orElseThrow(() -> new RuntimeException("User not found"));
 
-			    String token = UUID.randomUUID().toString();
+		    String token = UUID.randomUUID().toString();
 
-			    user.setResetToken(token);
-			    userRepository.save(user);
+		    user.setResetToken(token);
+		    userRepository.save(user);
 
-			    String link = frontendUrl + "/reset-password?token=" + token;
+		    String link = frontendUrl + "/reset-password?token=" + token;
 
-			    sendEmail(user.getEmail(), link);
+		    // 🔥 IMPORTANT: print reset link
+		    System.out.println("RESET LINK: " + link);
 
-			    return token;
-	}
+		    // send email (will not crash now)
+		    sendEmail(user.getEmail(), link);
+
+		    return token;
+		
+}
 		
 }
 
