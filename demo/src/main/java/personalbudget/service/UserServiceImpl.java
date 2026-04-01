@@ -65,12 +65,14 @@ public class UserServiceImpl implements UserService{
 	public void resetPassword(String token, String newPassword) {
 
 	    UserEntity user = userRepository.findByResetToken(token)
-	        .orElseThrow(() -> new RuntimeException("Invalid token"));
+		        .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
 
-	    user.setPassword(passwordEncoder.encode(newPassword));
-	    user.setResetToken(null);
+		    user.setPassword(passwordEncoder.encode(newPassword));
 
-	    userRepository.save(user);
+		    user.setResetToken(null);
+		    user.setResetTokenExpiry(null);
+
+		    userRepository.save(user);
 		
 	}
 	@Override
