@@ -75,8 +75,7 @@ public class UserServiceImpl implements UserService{
 	}
 	@Override
 	public void sendEmail(String to, String link) {
-
-	    try {
+		 try {
 		        SimpleMailMessage message = new SimpleMailMessage();
 
 		        message.setTo(to);
@@ -89,6 +88,7 @@ public class UserServiceImpl implements UserService{
 		        System.out.println("Email failed to send: " + e.getMessage());
 		    }
 	}
+
 	@Override
 	public String createResetToken(String email) {
 		 UserEntity user = userRepository.findByEmail(email)
@@ -110,7 +110,5 @@ public class UserServiceImpl implements UserService{
 		    return token;
 		
 }
-		
+
 }
-
-
