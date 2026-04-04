@@ -39,15 +39,19 @@ public class UserController {
 
 	    // ✅ LOGIN
 	    @PostMapping("/login")
-	    public ResponseEntity<?> login(@RequestBody UserEntity request) {
-
+	   
 	        UserEntity user = userService.findByEmail(request.getEmail());
 
-	        if (user == null || 
-	            !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-
-	            return ResponseEntity.status(401).body("Invalid email or password");
+	        if (user == null) {
+	            return ResponseEntity.status(401).body("User not found");
 	        }
+
+	        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+	            return ResponseEntity.status(401).body("Invalid password");
+	        }
+
+	        // 🔥 təhlükəsizlik üçün password silinir
+	        user.setPassword(null);
 
 	        return ResponseEntity.ok(user);
 	    }
