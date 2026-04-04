@@ -1,17 +1,9 @@
 package personalbudget.controller;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import personalbudget.entity.UserEntity;
 import personalbudget.service.UserService;
@@ -20,73 +12,74 @@ import personalbudget.service.UserService;
 @RequestMapping("/api/app_users")
 @CrossOrigin(origins = "*")
 public class UserController {
-	
-	 @Autowired
-	    private UserService userService;
-	 
-	 @Autowired
-	 private PasswordEncoder passwordEncoder;
-	// ✅ REGISTER
-	    @PostMapping("/register")
-	    public ResponseEntity<?> register(@RequestBody UserEntity user) {
 
-	        if (userService.existsByEmail(user.getEmail())) {
-	            return ResponseEntity.badRequest().body("Email already exists");
-	        }
+    @Autowired
+    private UserService userService;
 
-	        return ResponseEntity.ok(userService.save(user));
-	    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	    // ✅ LOGIN
-	    @PostMapping("/login")
-	   
-	        UserEntity user = userService.findByEmail(request.getEmail());
+    // ✅ REGISTER
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserEntity user) {
 
-	        if (user == null) {
-	            return ResponseEntity.status(401).body("User not found");
-	        }
+        if (userService.existsByEmail(user.getEmail())) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
 
-	        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-	            return ResponseEntity.status(401).body("Invalid password");
-	        }
+        return ResponseEntity.ok(userService.save(user));
+    }
 
-	        // 🔥 təhlükəsizlik üçün password silinir
-	        user.setPassword(null);
+    // ✅ LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserEntity request) {
 
-	        return ResponseEntity.ok(user);
-	    }
+        UserEntity user = userService.findByEmail(request.getEmail());
 
-	    // ✅ FORGOT PASSWORD (SendGrid burada işləyir)
-	    @PostMapping("/forgot-password")
-	    public ResponseEntity<?> forgotPassword(@RequestBody UserEntity request) {
+        if (user == null) {
+            return ResponseEntity.status(401).body("User not found");
+        }
 
-	        userService.createResetToken(request.getEmail());
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid password");
+        }
 
-	        return ResponseEntity.ok("Reset link sent to email");
-	    }
+        // 🔐 təhlükəsizlik üçün password sil
+        user.setPassword(null);
 
-	    // ✅ RESET PASSWORD
-	    @PostMapping("/reset-password")
-	    public ResponseEntity<?> resetPassword(
-	            @RequestParam String token,
-	            @RequestParam String password
-	    ) {
+        return ResponseEntity.ok(user);
+    }
 
-	        userService.resetPassword(token, password);
+    // ✅ FORGOT PASSWORD
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody UserEntity request) {
 
-	        return ResponseEntity.ok("Password reset successful");
-	    }
-	
-	    @PostMapping("/support")
-	    public ResponseEntity<?> support(@RequestBody SupportRequest request) {
+        userService.createResetToken(request.getEmail());
 
-	        userService.sendSupportMessage(
-	            request.getEmail(),
-	            request.getMessage()
-	        );
+        return ResponseEntity.ok("Reset link sent to email");
+    }
 
-	        return ResponseEntity.ok("Support message sent");
-	    }
-	    
+    // ✅ RESET PASSWORD
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String token,
+            @RequestParam String password
+    ) {
 
+        userService.resetPassword(token, password);
+
+        return ResponseEntity.ok("Password reset successful");
+    }
+
+    // ✅ SUPPORT
+    @PostMapping("/support")
+    public ResponseEntity<?> support(@RequestBody SupportRequest request) {
+
+        userService.sendSupportMessage(
+                request.getEmail(),
+                request.getMessage()
+        );
+
+        return ResponseEntity.ok("Support message sent");
+    }
 }
