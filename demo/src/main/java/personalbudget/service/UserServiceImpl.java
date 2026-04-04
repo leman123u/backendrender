@@ -117,4 +117,21 @@ public class UserServiceImpl implements UserService{
 		
 }
 
-}
+
+	@Override
+	public void sendSupportMessage(String email, String message) {
+		 String text =
+		            "New Support Message\n\n" +
+		            "From: " + email + "\n\n" +
+		            "Message:\n" + message;
+
+		    emailService.sendEmail(
+		            "leman.memmedli31378@gmail.com",
+		            "Support Request",
+		            text
+		    );
+	}}
+		    
+ 
+	
+	
