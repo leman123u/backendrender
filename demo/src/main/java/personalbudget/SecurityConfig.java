@@ -1,4 +1,5 @@
 package personalbudget;
+
 import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
@@ -11,27 +12,41 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 @Configuration
 public class SecurityConfig {
 
 
-	
 	@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ ƏN VACİB
-            .headers(headers ->
-                headers.frameOptions(frame -> frame.disable())
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().permitAll()
-            );
+	    http
+	        .csrf(csrf -> csrf.disable())
+	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+	        .headers(headers ->
+	            headers.frameOptions(frame -> frame.disable())
+	        )
+	        .authorizeHttpRequests(auth -> auth
 
-        return http.build();
-    }
+	            // PUBLIC (login/register)
+	            .requestMatchers(
+	                "/h2-console/**",
+	                "/api/app_users/login",
+	                "/api/app_users/register",
+	                "/api/app_users/forgot-password",
+	                "/api/app_users/reset-password"
+	            ).permitAll()
+
+	            // 🔥 AI PROTECTED
+	            .requestMatchers("/api/ai/**").authenticated()
+
+	            // 🔒 others
+	            .anyRequest().authenticated()
+	        );
+
+	    return http.build();
+	}
+    
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -60,6 +75,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 	}
 
