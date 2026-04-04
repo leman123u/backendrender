@@ -7,8 +7,7 @@ import personalbudget.entity.UserEntity;
 
 public interface UserService {
 	
-	
-UserEntity findByEmail(String email);
+	UserEntity findByEmail(String email);
 
     UserEntity save(UserEntity user);
 
@@ -24,5 +23,10 @@ UserEntity findByEmail(String email);
     void sendEmail(String to, String link);
     
     
+    
+   
 
+   
+
+    
 }
