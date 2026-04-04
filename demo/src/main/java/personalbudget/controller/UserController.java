@@ -73,6 +73,16 @@ public class UserController {
 	        return ResponseEntity.ok("Password reset successful");
 	    }
 	
+	    @PostMapping("/support")
+	    public ResponseEntity<?> support(@RequestBody SupportRequest request) {
+
+	        userService.sendSupportMessage(
+	            request.getEmail(),
+	            request.getMessage()
+	        );
+
+	        return ResponseEntity.ok("Support message sent");
+	    }
 	    
 
 }
