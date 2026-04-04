@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +18,20 @@ import personalbudget.repository.UserRepository;
 @Service
 public class UserServiceImpl implements UserService{
 	
-	@Autowired
-	private JavaMailSender mailSender;
+	
 	
 	  @Autowired 
 	 private UserRepository userRepository;
 	  @Autowired 
 	  private  PasswordEncoder passwordEncoder;
+	 
+	  @Autowired
+	  private EmailService emailService;
 	  
 	  
 	  @Value("${app.frontend.url}")
-	    private String frontendUrl;
+	  private String frontendUrl;
+	  
    
 	@Override
 	public UserEntity findByEmail(String email) {
@@ -47,9 +50,6 @@ public class UserServiceImpl implements UserService{
 	}
 
 	
-
-
-		
 	
 
 	@Override
@@ -87,16 +87,9 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void sendEmail(String to, String link) {
 		 try {
-		        SimpleMailMessage message = new SimpleMailMessage();
-
-		        message.setTo(to);
-		        message.setSubject("Reset Password");
-		        message.setText("Click this link:\n" + link);
-
-		        mailSender.send(message);
-
+		        emailService.sendResetToken(to, link);
 		    } catch (Exception e) {
-		        System.out.println("Email failed to send: " + e.getMessage());
+		        System.out.println("Email failed: " + e.getMessage());
 		    }
 	}
 
