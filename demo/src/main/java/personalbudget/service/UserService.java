@@ -23,7 +23,7 @@ public interface UserService {
     void sendEmail(String to, String link);
     
     
-    
+    void sendSupportMessage(String email, String message);
    
 
    
