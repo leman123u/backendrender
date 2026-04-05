@@ -1,8 +1,5 @@
 package personalbudget.controller;
 
-
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,13 +14,15 @@ import personalbudget.service.AIService;
 @CrossOrigin(origins = "*")
 public class AIController {
 	
-	  @Autowired
+	 @Autowired
 	    private AIService aiService;
-	    // ✅ AI CHAT ENDPOINT
-	  @PostMapping("/ask")
-	  public String askAI(@RequestBody Map<String, String> body) {
-	      return aiService.askAI(body.get("prompt"));
-	  }
+
+	    // ✅ CLEAN VERSION
+	    @PostMapping("/ask")
+	    public String askAI(@RequestBody PromptRequest request) {
+
+	        return aiService.askAI(request.getPrompt());
+	    }
 	
 	
 
