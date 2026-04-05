@@ -29,13 +29,14 @@ public class SecurityConfig {
 	        .authorizeHttpRequests(auth -> auth
 
 	            // PUBLIC (login/register)
-	            .requestMatchers(
-	                "/h2-console/**",
-	                "/api/app_users/login",
-	                "/api/app_users/register",
-	                "/api/app_users/forgot-password",
-	                "/api/app_users/reset-password"
-	            ).permitAll()
+	        		.requestMatchers(
+	        			    "/h2-console/**",
+	        			    "/api/app_users/login",
+	        			    "/api/app_users/register",
+	        			    "/api/app_users/forgot-password",
+	        			    "/api/app_users/reset-password",
+	        			    "/api/ai/**" // 🔥 əlavə et
+	        			).permitAll()
 
 	            // 🔥 AI PROTECTED
 	            .requestMatchers("/api/ai/**").authenticated()
@@ -76,4 +77,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 	}
-
