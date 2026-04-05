@@ -23,16 +23,25 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserEntity user) {
 
+        if (user.getEmail() == null || user.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Email and password required");
+        }
+
         if (userService.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
 
-        return ResponseEntity.ok(userService.save(user));
+        UserEntity savedUser = userService.save(user);
+
+        // 🔐 password gizlət
+        savedUser.setPassword(null);
+
+        return ResponseEntity.ok(savedUser);
     }
 
     // ✅ LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserEntity request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
         UserEntity user = userService.findByEmail(request.getEmail());
 
@@ -44,7 +53,6 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid password");
         }
 
-        // 🔐 təhlükəsizlik üçün password sil
         user.setPassword(null);
 
         return ResponseEntity.ok(user);
@@ -53,6 +61,10 @@ public class UserController {
     // ✅ FORGOT PASSWORD
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody UserEntity request) {
+
+        if (request.getEmail() == null) {
+            return ResponseEntity.badRequest().body("Email required");
+        }
 
         userService.createResetToken(request.getEmail());
 
@@ -66,20 +78,12 @@ public class UserController {
             @RequestParam String password
     ) {
 
+        if (token == null || password == null) {
+            return ResponseEntity.badRequest().body("Token and password required");
+        }
+
         userService.resetPassword(token, password);
 
         return ResponseEntity.ok("Password reset successful");
-    }
-
-    // ✅ SUPPORT
-    @PostMapping("/support")
-    public ResponseEntity<?> support(@RequestBody SupportRequest request) {
-
-        userService.sendSupportMessage(
-                request.getEmail(),
-                request.getMessage()
-        );
-
-        return ResponseEntity.ok("Support message sent");
     }
 }
