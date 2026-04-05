@@ -1,17 +1,23 @@
 package personalbudget.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import personalbudget.entity.UserEntity;
+import personalbudget.security.JwtUtil;
 import personalbudget.service.UserService;
 
 @RestController
 @RequestMapping("/api/app_users")
 @CrossOrigin(origins = "*")
 public class UserController {
+	
+	@Autowired
+	private JwtUtil jwtUtil;
 
     @Autowired
     private UserService userService;
@@ -39,9 +45,8 @@ public class UserController {
         return ResponseEntity.ok(savedUser);
     }
 
-    // ✅ LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody UserEntity request) {
 
         UserEntity user = userService.findByEmail(request.getEmail());
 
@@ -53,10 +58,16 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid password");
         }
 
+        String token = jwtUtil.generateToken(user.getEmail());
+
         user.setPassword(null);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "user", user
+        ));
     }
+    
 
     // ✅ FORGOT PASSWORD
     @PostMapping("/forgot-password")
