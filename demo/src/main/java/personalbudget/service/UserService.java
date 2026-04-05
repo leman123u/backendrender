@@ -20,12 +20,10 @@ public interface UserService {
 
     boolean existsByEmail(String email);
     
-    void sendEmail(String to, String link);
-    
     
     void sendSupportMessage(String email, String message);
+    
    
-
    
 
     
