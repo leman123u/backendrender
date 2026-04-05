@@ -2,51 +2,53 @@ package personalbudget;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import personalbudget.security.JwtFilter;
 
 
 @Configuration
 public class SecurityConfig {
 
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	@Autowired
+    private JwtFilter jwtFilter;
 
-	    http
-	        .csrf(csrf -> csrf.disable())
-	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-	        .headers(headers ->
-	            headers.frameOptions(frame -> frame.disable())
-	        )
-	        .authorizeHttpRequests(auth -> auth
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	            // PUBLIC (login/register)
-	        		.requestMatchers(
-	        			    "/h2-console/**",
-	        			    "/api/app_users/login",
-	        			    "/api/app_users/register",
-	        			    "/api/app_users/forgot-password",
-	        			    "/api/app_users/reset-password",
-	        			    "/api/ai/**" // 🔥 əlavə et
-	        			).permitAll()
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
 
-	            // 🔥 AI PROTECTED
-	            .requestMatchers("/api/ai/**").authenticated()
+                // PUBLIC
+                .requestMatchers(
+                    "/api/app_users/login",
+                    "/api/app_users/register",
+                    "/api/app_users/forgot-password",
+                    "/api/app_users/reset-password"
+                ).permitAll()
 
-	            // 🔒 others
-	            .anyRequest().authenticated()
-	        );
+                // PROTECTED
+                .anyRequest().authenticated()
+            )
 
-	    return http.build();
-	}
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+	
     
 
     @Bean
