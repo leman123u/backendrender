@@ -20,17 +20,17 @@ public class UserServiceImpl implements UserService{
 	
 	
 	
-	  @Autowired 
-	 private UserRepository userRepository;
-	  @Autowired 
-	  private  PasswordEncoder passwordEncoder;
-	 
-	  @Autowired
-	  private EmailService emailService;
-	  
-	  
-	  @Value("${app.frontend.url}")
-	  private String frontendUrl;
+	@Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 	  
    
 	@Override
@@ -42,11 +42,8 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public UserEntity save(UserEntity user) {
 		
-		 user.setPassword(
-		            passwordEncoder.encode(user.getPassword())
-		    );
-
-		    return userRepository.save(user);
+		 user.setPassword(passwordEncoder.encode(user.getPassword()));
+	        return userRepository.save(user);
 	}
 
 	
@@ -64,73 +61,73 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public void resetPassword(String token, String newPassword) {
-		UserEntity user = userRepository.findByResetToken(token)
-	            .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-	    // 🔥 expiry check
-	    if (user.getResetTokenExpiry() == null ||
-	        user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+        UserEntity user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-	        throw new RuntimeException("Token expired");
-	    }
+        if (user.getResetTokenExpiry() == null ||
+            user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
+        }
 
-	    user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
 
-	    // 🔥 token silinir
-	    user.setResetToken(null);
-	    user.setResetTokenExpiry(null);
-
-	    userRepository.save(user);
-	    
+        userRepository.save(user);
 	    
 	}
-	@Override
-	public void sendEmail(String to, String link) {
-		 try {
-		        emailService.sendResetToken(to, link);
-		    } catch (Exception e) {
-		        System.out.println("Email failed: " + e.getMessage());
-		    }
-	}
+
+	
 
 	@Override
 	public String createResetToken(String email) {
 		 UserEntity user = userRepository.findByEmail(email)
-		            .orElseThrow(() -> new RuntimeException("User not found"));
+	                .orElseThrow(() -> new RuntimeException("User not found"));
 
-		    String token = UUID.randomUUID().toString();
+	        String token = UUID.randomUUID().toString();
 
-		    user.setResetToken(token);
+	        user.setResetToken(token);
+	        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
 
-		    // 🔥 15 dəqiqəlik expiry
-		    user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+	        userRepository.save(user);
 
-		    userRepository.save(user);
+	        String link = frontendUrl + "/reset-password?token=" + token;
 
-		    String link = frontendUrl + "/reset-password?token=" + token;
+	        System.out.println("RESET LINK: " + link);
 
-		    System.out.println("RESET LINK: " + link);
+	        try {
+	            emailService.sendResetToken(user.getEmail(), link);
+	        } catch (Exception e) {
+	            System.out.println("Email failed: " + e.getMessage());
+	        }
 
-		    sendEmail(user.getEmail(), link);
-
-		    return token;
-		
-}
+	        return token;
+	    }
 
 
 	@Override
 	public void sendSupportMessage(String email, String message) {
-		 String text =
-		            "New Support Message\n\n" +
-		            "From: " + email + "\n\n" +
-		            "Message:\n" + message;
 
-		    emailService.sendEmail(
-		            "leman.memmedli31378@gmail.com",
-		            "Support Request",
-		            text
-		    );
-	}}
+        String text =
+                "New Support Message\n\n" +
+                "From: " + email + "\n\n" +
+                "Message:\n" + message;
+
+        // 🔥 indi EmailService-də bu method var
+        emailService.sendEmail(
+                "leman.memmedli31378@gmail.com",
+                "Support Request",
+                text
+        );
+    }
+		
+	}
+	
+
+
+
+	
 		    
  
 	
