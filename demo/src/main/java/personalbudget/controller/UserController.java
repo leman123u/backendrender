@@ -45,6 +45,17 @@ public class UserController {
         return ResponseEntity.ok(savedUser);
     }
 
+    /**
+     * Handles GET (e.g. browser address bar or probes) so the path does not return 405.
+     * Authentication still uses POST with JSON body.
+     */
+    @GetMapping("/login")
+    public ResponseEntity<Map<String, String>> loginGet() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Use POST with Content-Type: application/json and body {\"email\":\"...\",\"password\":\"...\"}"
+        ));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserEntity request) {
 
