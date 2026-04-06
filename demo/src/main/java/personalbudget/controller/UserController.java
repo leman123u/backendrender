@@ -59,6 +59,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserEntity request) {
 
+        if (request == null || request.getEmail() == null || request.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Email and password required");
+        }
+
         UserEntity user = userService.findByEmail(request.getEmail());
 
         if (user == null) {
@@ -107,5 +111,20 @@ public class UserController {
         userService.resetPassword(token, password);
 
         return ResponseEntity.ok("Password reset successful");
+    }
+    
+    @PostMapping("/support")
+    public ResponseEntity<?> support(@RequestBody Map<String, String> request) {
+
+        String email = request.get("email");
+        String message = request.get("message");
+
+        if (email == null || message == null) {
+            return ResponseEntity.badRequest().body("Email and message required");
+        }
+
+        userService.sendSupportMessage(email, message);
+
+        return ResponseEntity.ok("Message sent successfully");
     }
 }
