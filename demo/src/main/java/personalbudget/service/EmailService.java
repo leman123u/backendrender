@@ -19,8 +19,8 @@ import com.sendgrid.helpers.mail.objects.Email;
 @Service
 public class EmailService {
 	
-	 @Value("${sendgrid.api.key}")
-	    private String apiKey;
+	@Value("${SENDGRID_API_KEY}")
+	private String apiKey;
 
 	    @Value("${sendgrid.from.email}")
 	    private String fromEmail;
@@ -53,6 +53,9 @@ public class EmailService {
 	        System.out.println("Subject: " + subject);
 	        System.out.println("Text: " + text);
 	    }
+	    
+	    
+	    
 		
 	
 
