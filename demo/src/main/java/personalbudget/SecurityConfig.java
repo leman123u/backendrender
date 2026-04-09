@@ -59,10 +59,10 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "https://budgetapp-rwo4.vercel.app"
-        ));
+       configuration.setAllowedOriginPatterns(Arrays.asList(
+      "http://localhost:3000",
+      "https://*.vercel.app"
+       ));
 
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
