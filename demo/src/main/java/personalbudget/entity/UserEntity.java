@@ -3,6 +3,8 @@ package personalbudget.entity;
 import java.time.LocalDateTime;
 
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.persistence.Id;
 
 import jakarta.persistence.Column;
@@ -33,6 +35,7 @@ public class UserEntity {
 	    private String name;
 
 	    @Column(name = "email", nullable = false, unique = true)
+	    @JsonAlias({ "username", "userName", "user_email" })
 	    private String email;
 
 	    @Column(name = "password", nullable = false)
