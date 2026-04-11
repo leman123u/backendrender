@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import personalbudget.entity.UserEntity;
+import personalbudget.exception.ResetTokenException;
 import personalbudget.repository.UserRepository;
 
 @Service
@@ -66,11 +67,11 @@ public class UserServiceImpl implements UserService{
 	public void resetPassword(String token, String newPassword) {
 
         UserEntity user = userRepository.findByResetToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new ResetTokenException("Invalid token"));
 
         if (user.getResetTokenExpiry() == null ||
             user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            throw new ResetTokenException("Token expired");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
