@@ -61,24 +61,17 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Web/Android hybrid apps (WebView, Capacitor, Ionic) use origins other than the web dev server.
-        // Without a matching pattern, browsers send OPTIONS preflight but block POST — logs show only OPTIONS.
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-        	    "http://localhost:3000",
-        	    "https://*.vercel.app",
-        	    "http://localhost:*",
-        	    "http://127.0.0.1:*",
-        	    "https://localhost:*",
-        	    "capacitor://localhost",
-        	    "ionic://localhost"
-        	));
+        // Any origin: Android WebView / Capacitor / Ionic send many different Origins; a narrow list
+        // breaks CORS preflight (logs show OPTIONS but no POST). JWT uses Authorization header, not cookies,
+        // so credentials=false is correct and allows Access-Control-Allow-Origin: * per spec.
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
 
         configuration.setAllowedMethods(Arrays.asList(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));
 
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
