@@ -61,9 +61,16 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // Web/Android hybrid apps (WebView, Capacitor, Ionic) use origins other than the web dev server.
+        // Without a matching pattern, browsers send OPTIONS preflight but block POST — logs show only OPTIONS.
         configuration.setAllowedOriginPatterns(Arrays.asList(
         	    "http://localhost:3000",
-        	    "https://*.vercel.app"
+        	    "https://*.vercel.app",
+        	    "http://localhost:*",
+        	    "http://127.0.0.1:*",
+        	    "https://localhost:*",
+        	    "capacitor://localhost",
+        	    "ionic://localhost"
         	));
 
         configuration.setAllowedMethods(Arrays.asList(
