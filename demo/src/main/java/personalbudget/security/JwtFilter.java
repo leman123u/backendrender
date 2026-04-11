@@ -31,9 +31,17 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/app_users/support"
     };
 
+    private static String withoutTrailingSlash(String path) {
+        if (path.length() > 1 && path.endsWith("/")) {
+            return path.substring(0, path.length() - 1);
+        }
+        return path;
+    }
+
     private static boolean isPublicPath(String path) {
+        String normalized = withoutTrailingSlash(path);
         for (String pattern : PUBLIC_PATHS) {
-            if (PATH_MATCHER.match(pattern, path)) {
+            if (PATH_MATCHER.match(pattern, normalized)) {
                 return true;
             }
         }
