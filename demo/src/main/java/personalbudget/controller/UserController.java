@@ -3,11 +3,13 @@ package personalbudget.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import personalbudget.entity.UserEntity;
+import personalbudget.exception.ResetTokenException;
 import personalbudget.security.JwtUtil;
 import personalbudget.service.UserService;
 
@@ -111,6 +113,11 @@ public class UserController {
         userService.resetPassword(token, password);
 
         return ResponseEntity.ok("Password reset successful");
+    }
+
+    @ExceptionHandler(ResetTokenException.class)
+    public ResponseEntity<String> handleResetToken(ResetTokenException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @PostMapping("/support")
