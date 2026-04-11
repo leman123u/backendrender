@@ -2,8 +2,6 @@ package personalbudget.service;
 
 
 
-
-
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,37 +23,34 @@ public class EmailService {
 	    @Value("${sendgrid.from.email}")
 	    private String fromEmail;
 
-	    public void sendResetToken(String toEmail, String link) throws IOException {
-
+	      private void sendPlainText(String toEmail, String subject, String body) throws IOException {
 	        Email from = new Email(fromEmail);
-	        String subject = "Password Reset";
 	        Email to = new Email(toEmail);
-
-	        Content content = new Content("text/plain",
-	                "Click this link to reset your password:\n" + link);
-
+	        Content content = new Content("text/plain", body);
 	        Mail mail = new Mail(from, subject, to, content);
 
 	        SendGrid sg = new SendGrid(apiKey);
 	        Request request = new Request();
-
 	        request.setMethod(Method.POST);
 	        request.setEndpoint("mail/send");
 	        request.setBody(mail.build());
 
 	        Response response = sg.api(request);
+	        int code = response.getStatusCode();
+	        System.out.println("SendGrid status: " + code);
+	        if (code >= 300) {
+	            throw new IOException("SendGrid HTTP " + code + ": " + response.getBody());
+	        }
+	    }
 
-	        System.out.println("Status Code: " + response.getStatusCode());
+	    public void sendResetToken(String toEmail, String link) throws IOException {
+	        String body = "Click this link to reset your password:\n" + link;
+	        sendPlainText(toEmail, "Password Reset", body);
 	    }
 	    
-	    public void sendEmail(String to, String subject, String text) {
-	        System.out.println("Sending email to: " + to);
-	        System.out.println("Subject: " + subject);
-	        System.out.println("Text: " + text);
+	    public void sendEmail(String to, String subject, String text) throws IOException {
+	        sendPlainText(to, subject, text);
 	    }
-	    
-	    
-	    
 		
 	
 
