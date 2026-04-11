@@ -30,11 +30,11 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private EmailService emailService;
 
-    @Value("${app.frontend.url}")
-    private String frontendUrl;
+  @Value("${APP_FRONTEND_URL}")
+private String frontendUrl;
 
-    @Value("${app.support.inbox}")
-    private String supportInbox;
+ @Value("${SUPPORT_INBOX_EMAIL}")
+ private String supportInbox;
 	  
    
 	@Override
