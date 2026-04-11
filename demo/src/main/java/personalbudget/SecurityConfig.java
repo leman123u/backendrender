@@ -36,10 +36,12 @@ public class SecurityConfig {
                 // PUBLIC
                 .requestMatchers(
                     "/",
+                    "/api/support",
                     "/api/app_users/login",
                     "/api/app_users/register",
                     "/api/app_users/forgot-password",
-                    "/api/app_users/reset-password"
+                    "/api/app_users/reset-password",
+                    "/api/app_users/support"
                 ).permitAll()
 
                 // PROTECTED
@@ -59,10 +61,10 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-       configuration.setAllowedOriginPatterns(Arrays.asList(
-      "http://localhost:3000",
-      "https://*.vercel.app"
-       ));
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+        	    "http://localhost:3000",
+        	    "https://*.vercel.app"
+        	));
 
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
