@@ -23,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
     /** Paths that must accept requests without valid JWT (same idea as SecurityConfig permitAll). */
     private static final String[] PUBLIC_PATHS = {
             "/",
+            "/api/support",
             "/api/app_users/login",
             "/api/app_users/register",
             "/api/app_users/forgot-password",
@@ -60,6 +61,12 @@ public class JwtFilter extends OncePerRequestFilter {
 	                                    HttpServletResponse response,
 	                                    FilterChain filterChain)
 	            throws ServletException, IOException {
+
+	        // CORS preflight never carries Authorization; let CorsFilter + Security handle it.
+	        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+	            filterChain.doFilter(request, response);
+	            return;
+	        }
 
 	        if (isPublicPath(pathWithinApplication(request))) {
 	            filterChain.doFilter(request, response);
