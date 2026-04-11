@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService{
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
+
+    @Value("${app.support.inbox}")
+    private String supportInbox;
 	  
    
 	@Override
@@ -114,12 +117,12 @@ public class UserServiceImpl implements UserService{
                 "From: " + email + "\n\n" +
                 "Message:\n" + message;
 
-        // 🔥 indi EmailService-də bu method var
-        emailService.sendEmail(
-                "leman.memmedli31378@gmail.com",
-                "Support Request",
-                text
-        );
+        try {
+            emailService.sendEmail(supportInbox, "Support Request", text);
+        } catch (Exception e) {
+            System.out.println("Support email failed: " + e.getMessage());
+            throw new RuntimeException("Could not send support message. Please try again later.", e);
+        }
     }
 		
 	}
